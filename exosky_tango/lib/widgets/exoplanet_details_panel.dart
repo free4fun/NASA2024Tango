@@ -3,81 +3,101 @@ import 'package:exosky_tango/models/exoplanet.dart';
 
 class ExoplanetDetailsPanel extends StatelessWidget {
   final Exoplanet? exoplanet;
-  final Function(Exoplanet?) onExoplanetChanged;
 
-  const ExoplanetDetailsPanel({
-    Key? key,
-    required this.exoplanet,
-    required this.onExoplanetChanged,
-  }) : super(key: key);
+  const ExoplanetDetailsPanel({Key? key, this.exoplanet}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (exoplanet == null) {
-      return const Center(child: Text('Select an exoplanet to view details'));
-    }
-
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.blueGrey[900],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            exoplanet!.name ?? 'Unknown Exoplanet',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(color: Colors.white),
-          ),
-          const SizedBox(height: 8),
-          _buildDetailRow('Distance',
-              '${exoplanet!.distanceFromEarth?.toStringAsFixed(2) ?? 'Unknown'} ly'),
-          _buildDetailRow('Mass',
-              '${exoplanet!.planetMass?.toStringAsFixed(2) ?? 'Unknown'} Earth masses'),
-          _buildDetailRow('Radius',
-              '${exoplanet!.planetRadius?.toStringAsFixed(2) ?? 'Unknown'} Earth radii'),
-          _buildDetailRow('Orbital Period',
-              '${exoplanet!.orbitalPeriod?.toStringAsFixed(2) ?? 'Unknown'} days'),
-          _buildDetailRow('Right Ascension',
-              _formatRightAscension(exoplanet!.rightAscension)),
-          _buildDetailRow('Declination',
-              '${exoplanet!.declination?.toStringAsFixed(2) ?? 'Unknown'}°'),
-          _buildDetailRow(
-              'Discovery Method', exoplanet!.discoveryMethod ?? 'Unknown'),
-          _buildDetailRow('Discovery Year',
-              exoplanet!.discoveryYear?.toString() ?? 'Unknown'),
-          _buildDetailRow('Host Star', exoplanet!.hostName ?? 'Unknown'),
-          _buildDetailRow('Equilibrium Temperature',
-              '${exoplanet!.equilibriumTemperature?.toStringAsFixed(2) ?? 'Unknown'} K'),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => onExoplanetChanged(null),
-            child: const Text('Clear Selection'),
-          ),
-        ],
+      width: 300,
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blueAccent, width: 1),
+      ),
+      child:
+          exoplanet == null ? _buildNoSelectionInfo() : _buildExoplanetInfo(),
+    );
+  }
+
+  Widget _buildNoSelectionInfo() {
+    return Center(
+      child: Text(
+        'Select an exoplanet to view details',
+        style: TextStyle(color: Colors.white70, fontSize: 16),
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildExoplanetInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          exoplanet!.name ?? 'Unknown',
+          style: TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        _buildInfoRow('Type', exoplanet!.type.toString().split('.').last),
+        _buildInfoRow('Host Star', exoplanet!.hostName ?? 'Unknown'),
+        _buildInfoRow('Distance',
+            '${_formatValue(exoplanet!.distanceFromEarth)} light years'),
+        _buildInfoRow(
+            'Mass', '${_formatValue(exoplanet!.planetMass)} Jupiter masses'),
+        _buildInfoRow(
+            'Radius', '${_formatValue(exoplanet!.planetRadius)} Jupiter radii'),
+        _buildInfoRow(
+            'Orbital Period', '${_formatValue(exoplanet!.orbitalPeriod)} days'),
+        _buildInfoRow('Eccentricity',
+            _formatValue(exoplanet!.eccentricity, precision: 4)),
+        _buildInfoRow(
+            'Discovery Method', exoplanet!.discoveryMethod ?? 'Unknown'),
+        _buildInfoRow('Discovery Year',
+            exoplanet!.discoveryYear?.toString() ?? 'Unknown'),
+        SizedBox(height: 16),
+        _buildHabitabilityIndicator(),
+      ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white70)),
-          Text(value, style: const TextStyle(color: Colors.white)),
+          Text(label, style: TextStyle(color: Colors.white70)),
+          Text(value, style: TextStyle(color: Colors.white)),
         ],
       ),
     );
   }
 
-  String _formatRightAscension(double? ra) {
-    if (ra == null) return 'Unknown';
-    int hours = ra.floor();
-    int minutes = ((ra - hours) * 60).floor();
-    int seconds = (((ra - hours) * 60 - minutes) * 60).round();
-    return '${hours.toString().padLeft(2, '0')}h ${minutes.toString().padLeft(2, '0')}m ${seconds.toString().padLeft(2, '0')}s';
+  String _formatValue(double? value, {int precision = 2}) {
+    return value?.toStringAsFixed(precision) ?? 'Unknown';
+  }
+
+  Widget _buildHabitabilityIndicator() {
+    // Simple habitability estimation based on orbital period
+    // This is a very simplified approach and should be expanded for accuracy
+    final orbitalPeriod = exoplanet!.orbitalPeriod ?? 0;
+    final isHabitable = orbitalPeriod > 200 && orbitalPeriod < 500;
+
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: isHabitable
+            ? Colors.green.withOpacity(0.3)
+            : Colors.red.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isHabitable ? 'Potentially Habitable' : 'Not in Habitable Zone',
+        style: TextStyle(color: Colors.white),
+      ),
+    );
   }
 }

@@ -1,3 +1,5 @@
+enum ExoplanetType { terrestrial, gasGiant, iceGiant, superEarth, unknown }
+
 class Exoplanet {
   final String? name;
   final String? hostName;
@@ -18,6 +20,7 @@ class Exoplanet {
   final double? declination;
   final double? distanceFromEarth;
   final String? stellarSpectralType;
+  final ExoplanetType type;
 
   Exoplanet({
     this.name,
@@ -39,6 +42,7 @@ class Exoplanet {
     this.declination,
     this.distanceFromEarth,
     this.stellarSpectralType,
+    required this.type,
   });
 
   /// Create an Exoplanet object from a list of values
@@ -63,6 +67,8 @@ class Exoplanet {
       declination: double.tryParse(data[16]),
       distanceFromEarth: double.tryParse(data[17]),
       stellarSpectralType: data[18],
+      type:
+          _getExoplanetType(double.tryParse(data[9]), double.tryParse(data[8])),
     );
   }
 
@@ -88,6 +94,24 @@ class Exoplanet {
       declination: double.tryParse(map['dec'] ?? ''),
       distanceFromEarth: double.tryParse(map['sy_dist'] ?? ''),
       stellarSpectralType: map['st_spectype'],
+      type: _getExoplanetType(
+        double.tryParse(map['pl_bmasse'] ?? ''),
+        double.tryParse(map['pl_rade'] ?? ''),
+      ),
     );
+  }
+
+  // Helper method to determine exoplanet type based on mass and radius
+  static ExoplanetType _getExoplanetType(double? mass, double? radius) {
+    if (mass == null || radius == null) return ExoplanetType.unknown;
+
+    if (mass < 0.1 && radius < 1.6) return ExoplanetType.terrestrial;
+    if (mass >= 0.1 && mass < 10 && radius >= 1.6 && radius < 3.5) {
+      return ExoplanetType.superEarth;
+    }
+    if (mass >= 10 && mass < 50) return ExoplanetType.iceGiant;
+    if (mass >= 50) return ExoplanetType.gasGiant;
+
+    return ExoplanetType.unknown;
   }
 }
