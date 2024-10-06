@@ -13,7 +13,7 @@ import 'package:exosky_tango/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const ExoskyTangoApp());
+    await tester.pumpWidget(ExoSkyTangoApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

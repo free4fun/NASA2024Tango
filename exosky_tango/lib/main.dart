@@ -1,33 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:exosky_tango/providers/exoplanet_provider.dart';
-import 'package:exosky_tango/providers/star_provider.dart';
-import 'package:exosky_tango/services/api_service.dart';
 import 'package:exosky_tango/screens/home_screen.dart';
+import 'package:exosky_tango/providers/star_provider.dart';
+import 'package:exosky_tango/providers/exoplanet_provider.dart';
 
-void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ExoplanetProvider()),
-        ChangeNotifierProvider(create: (_) => StarProvider(ApiService())),
-      ],
-      child: ExoskyTangoApp(),
-    ),
-  );
+Future<void> main() async {
+  runApp(ExoSkyTangoApp());
 }
 
-class ExoskyTangoApp extends StatelessWidget {
-  const ExoskyTangoApp({Key? key}) : super(key: key);
+class ExoSkyTangoApp extends StatelessWidget {
+  const ExoSkyTangoApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ExoSky Tango',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => StarProvider()),
+        ChangeNotifierProvider(create: (_) => ExoplanetProvider()),
+      ],
+      child: MaterialApp(
+        title: 'ExoSky Tango',
+        theme: ThemeData.dark().copyWith(
+          primaryColor: Colors.blueGrey[900],
+          scaffoldBackgroundColor: Colors.black,
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.blueGrey[900],
+            elevation: 0,
+          ),
+        ),
+        home: HomeScreen(),
       ),
-      home: HomeScreen(),
     );
   }
 }

@@ -1,5 +1,3 @@
-// lib/screens/exoplanet_list_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:exosky_tango/providers/exoplanet_provider.dart';
@@ -45,7 +43,7 @@ class ExoplanetListScreen extends StatelessWidget {
   void _selectExoplanet(BuildContext context, Exoplanet exoplanet) {
     final exoplanetProvider =
         Provider.of<ExoplanetProvider>(context, listen: false);
-    exoplanetProvider.setSelectedExoplanet(exoplanet);
+    exoplanetProvider.selectExoplanet(exoplanet);
     Navigator.pop(context); // Return to the previous screen (likely HomeScreen)
   }
 
@@ -67,7 +65,7 @@ class ExoplanetListScreen extends StatelessWidget {
             TextButton(
               child: const Text('Apply'),
               onPressed: () {
-                // Implement filter logic
+                // TODO: Implement filter logic
                 Navigator.of(context).pop();
               },
             ),

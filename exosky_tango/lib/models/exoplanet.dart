@@ -1,4 +1,3 @@
-/// Represents an exoplanet with its various properties.
 class Exoplanet {
   final String? name;
   final String? hostName;
@@ -42,16 +41,41 @@ class Exoplanet {
     this.stellarSpectralType,
   });
 
-  /// Creates an [Exoplanet] instance from a map of data.
+  /// Create an Exoplanet object from a list of values
+  factory Exoplanet.fromList(List<String> data) {
+    return Exoplanet(
+      name: data[0],
+      hostName: data[1],
+      numStars: int.tryParse(data[2]),
+      numPlanets: int.tryParse(data[3]),
+      discoveryMethod: data[4],
+      discoveryYear: int.tryParse(data[5]),
+      discoveryFacility: data[6],
+      orbitalPeriod: double.tryParse(data[7]),
+      planetRadius: double.tryParse(data[8]),
+      planetMass: double.tryParse(data[9]),
+      stellarEffectiveTemperature: double.tryParse(data[10]),
+      stellarRadius: double.tryParse(data[11]),
+      stellarMass: double.tryParse(data[12]),
+      eccentricity: double.tryParse(data[13]),
+      equilibriumTemperature: double.tryParse(data[14]),
+      rightAscension: double.tryParse(data[15]),
+      declination: double.tryParse(data[16]),
+      distanceFromEarth: double.tryParse(data[17]),
+      stellarSpectralType: data[18],
+    );
+  }
+
+  /// Create an Exoplanet object from a map
   factory Exoplanet.fromMap(Map<String, dynamic> map) {
     return Exoplanet(
-      name: map['pl_name'] as String?,
-      hostName: map['hostname'] as String?,
+      name: map['pl_name'],
+      hostName: map['hostname'],
       numStars: int.tryParse(map['sy_snum'] ?? ''),
       numPlanets: int.tryParse(map['sy_pnum'] ?? ''),
-      discoveryMethod: map['discoverymethod'] as String?,
+      discoveryMethod: map['discoverymethod'],
       discoveryYear: int.tryParse(map['disc_year'] ?? ''),
-      discoveryFacility: map['disc_facility'] as String?,
+      discoveryFacility: map['disc_facility'],
       orbitalPeriod: double.tryParse(map['pl_orbper'] ?? ''),
       planetRadius: double.tryParse(map['pl_rade'] ?? ''),
       planetMass: double.tryParse(map['pl_bmasse'] ?? ''),
@@ -63,61 +87,7 @@ class Exoplanet {
       rightAscension: double.tryParse(map['ra'] ?? ''),
       declination: double.tryParse(map['dec'] ?? ''),
       distanceFromEarth: double.tryParse(map['sy_dist'] ?? ''),
-      stellarSpectralType: map['st_spectype'] as String?,
-    );
-  }
-
-  /// Converts the [Exoplanet] instance to a map.
-  Map<String, dynamic> toMap() {
-    return {
-      'pl_name': name,
-      'hostname': hostName,
-      'sy_snum': numStars,
-      'sy_pnum': numPlanets,
-      'discoverymethod': discoveryMethod,
-      'disc_year': discoveryYear,
-      'disc_facility': discoveryFacility,
-      'pl_orbper': orbitalPeriod,
-      'pl_rade': planetRadius,
-      'pl_bmasse': planetMass,
-      'st_teff': stellarEffectiveTemperature,
-      'st_rad': stellarRadius,
-      'st_mass': stellarMass,
-      'pl_orbeccen': eccentricity,
-      'pl_eqt': equilibriumTemperature,
-      'ra': rightAscension,
-      'dec': declination,
-      'sy_dist': distanceFromEarth,
-      'st_spectype': stellarSpectralType,
-    };
-  }
-
-  @override
-  String toString() {
-    return 'Exoplanet(name: $name, hostName: $hostName)';
-  }
-
-  factory Exoplanet.fromList(List<String> cells) {
-    return Exoplanet(
-      name: cells[0],
-      hostName: cells[1],
-      numStars: int.tryParse(cells[2]),
-      numPlanets: int.tryParse(cells[3]),
-      discoveryMethod: cells[4],
-      discoveryYear: int.tryParse(cells[5]),
-      discoveryFacility: cells[6],
-      orbitalPeriod: double.tryParse(cells[7]),
-      planetRadius: double.tryParse(cells[8]),
-      planetMass: double.tryParse(cells[9]),
-      stellarEffectiveTemperature: double.tryParse(cells[10]),
-      stellarRadius: double.tryParse(cells[11]),
-      stellarMass: double.tryParse(cells[12]),
-      eccentricity: double.tryParse(cells[13]),
-      equilibriumTemperature: double.tryParse(cells[14]),
-      rightAscension: double.tryParse(cells[15]),
-      declination: double.tryParse(cells[16]),
-      distanceFromEarth: double.tryParse(cells[17]),
-      stellarSpectralType: cells[18],
+      stellarSpectralType: map['st_spectype'],
     );
   }
 }

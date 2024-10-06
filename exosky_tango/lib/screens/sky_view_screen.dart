@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:exosky_tango/models/export_format.dart';
-import 'package:exosky_tango/models/exoplanet.dart';
-import 'package:exosky_tango/providers/exoplanet_provider.dart';
-import 'package:exosky_tango/providers/star_provider.dart';
-import 'package:exosky_tango/services/export_service.dart';
-import 'package:exosky_tango/widgets/export_dialog.dart';
 import 'package:exosky_tango/widgets/star_chart.dart';
-import 'package:exosky_tango/widgets/exoplanet_details_panel.dart';
+import 'package:exosky_tango/widgets/info_panel.dart';
+import 'package:exosky_tango/providers/star_provider.dart';
+import 'package:exosky_tango/providers/exoplanet_provider.dart';
 
 class SkyViewScreen extends StatefulWidget {
   const SkyViewScreen({Key? key}) : super(key: key);
@@ -17,121 +13,93 @@ class SkyViewScreen extends StatefulWidget {
 }
 
 class _SkyViewScreenState extends State<SkyViewScreen> {
-  final ExportService _exportService = ExportService();
   bool _showGrid = true;
-  Exoplanet? _selectedExoplanet;
-  double _rightAscension = 0.0;
-  double _declination = 0.0;
+  double _zoom = 1.0;
+  Offset _offset = Offset.zero;
+
+  final double raMin = 0;
+  final double raMax = 360;
+  final double decMin = -90;
+  final double decMax = 90;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData();
-    });
+    _loadData();
   }
 
-  void _initializeData() {
+  void _loadData() {
+    final starProvider = Provider.of<StarProvider>(context, listen: false);
     final exoplanetProvider =
         Provider.of<ExoplanetProvider>(context, listen: false);
-    if (exoplanetProvider.exoplanets.isNotEmpty) {
-      setState(() {
-        _selectedExoplanet = exoplanetProvider.exoplanets.first;
-        _updateChartPosition();
-      });
-    }
-  }
-
-  void _updateChartPosition() {
-    if (_selectedExoplanet != null) {
-      setState(() {
-        _rightAscension = _selectedExoplanet!.rightAscension ?? 0.0;
-        _declination = _selectedExoplanet!.declination ?? 0.0;
-      });
-    }
-  }
-
-  void _showExportDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => ExportDialog(
-        onExport: (format) {
-          Navigator.of(context).pop();
-          _exportData(format);
-        },
-      ),
-    );
-  }
-
-  void _exportData(ExportFormat format) async {
-    final exoplanetProvider =
-        Provider.of<ExoplanetProvider>(context, listen: false);
-    List<Exoplanet> exoplanetsToExport = exoplanetProvider.exoplanets;
-
-    try {
-      await _exportService.exportData(exoplanetsToExport, format);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Export successful')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export failed: ${e.toString()}')),
-      );
-    }
+    starProvider.fetchStars(
+        raMin: raMin, raMax: raMax, decMin: decMin, decMax: decMax);
+    exoplanetProvider.fetchExoplanets();
   }
 
   @override
   Widget build(BuildContext context) {
+    final starProvider = Provider.of<StarProvider>(context);
+    final exoplanetProvider = Provider.of<ExoplanetProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ExoSky Explorer'),
+        title: Text('ExoSky Explorer'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.grid_on),
+            icon: Icon(Icons.grid_on),
             onPressed: () => setState(() => _showGrid = !_showGrid),
-            tooltip: 'Toggle grid',
+            tooltip: 'Toggle Grid',
           ),
           IconButton(
-            icon: const Icon(Icons.file_download),
-            onPressed: _showExportDialog,
-            tooltip: 'Export data',
+            icon: Icon(Icons.save_alt),
+            onPressed: _exportData,
+            tooltip: 'Export Data',
           ),
         ],
       ),
-      body: Consumer2<ExoplanetProvider, StarProvider>(
-        builder: (context, exoplanetProvider, starProvider, child) {
-          if (_selectedExoplanet == null) {
-            return Center(child: Text('No exoplanet selected'));
-          }
-          return Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: StarChart(
-                  exoplanets: exoplanetProvider.exoplanets,
-                  showGrid: true,
-                  rightAscension: _rightAscension,
-                  declination: _declination,
-                ),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: GestureDetector(
+              onPanUpdate: (details) =>
+                  setState(() => _offset += details.delta),
+              onScaleUpdate: (details) =>
+                  setState(() => _zoom = details.scale.clamp(0.5, 5.0)),
+              child: StarChart(
+                stars: starProvider.stars,
+                exoplanets: exoplanetProvider.exoplanets,
+                raMin: raMin,
+                raMax: raMax,
+                decMin: decMin,
+                decMax: decMax,
+                showGrid: _showGrid,
+                zoom: _zoom,
+                offset: _offset,
               ),
-              Expanded(
-                flex: 1,
-                child: ExoplanetDetailsPanel(
-                  exoplanet: _selectedExoplanet,
-                  onExoplanetChanged: (Exoplanet? newExoplanet) {
-                    if (newExoplanet != null) {
-                      setState(() {
-                        _selectedExoplanet = newExoplanet;
-                        _updateChartPosition();
-                      });
-                    }
-                  },
-                ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: InfoPanel(
+              stars: starProvider.stars,
+              exoplanets: exoplanetProvider.exoplanets,
+              fetchStars: () => starProvider.fetchStars(
+                raMin: raMin,
+                raMax: raMax,
+                decMin: decMin,
+                decMax: decMax,
               ),
-            ],
-          );
-        },
+              fetchExoplanets: exoplanetProvider.fetchExoplanets,
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  void _exportData() {
+    print('Exporting data...');
   }
 }
