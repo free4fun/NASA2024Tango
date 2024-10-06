@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/exoplanet.dart';
 import 'sky_view_screen.dart';
+import '../widgets/custom_app_bar.dart'; // Corrected import
 
 class ExoplanetListScreen extends StatelessWidget {
   final List<Exoplanet> exoplanets = [
@@ -13,9 +14,7 @@ class ExoplanetListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Exoplanetas'),
-      ),
+      appBar: CustomAppBar(), // Now it correctly uses the CustomAppBar
       body: ListView.builder(
         itemCount: exoplanets.length,
         itemBuilder: (context, index) {
