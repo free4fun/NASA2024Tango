@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
-import 'screens/exoplanet_list_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:exosky_tango/providers/exoplanet_provider.dart';
+import 'package:exosky_tango/providers/star_provider.dart';
+import 'package:exosky_tango/services/api_service.dart';
+import 'package:exosky_tango/screens/home_screen.dart';
 
 void main() {
-  runApp(ExoplanetSkyViewerApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ExoplanetProvider()),
+        ChangeNotifierProvider(create: (_) => StarProvider(ApiService())),
+      ],
+      child: ExoskyTangoApp(),
+    ),
+  );
 }
 
-class ExoplanetSkyViewerApp extends StatelessWidget {
+class ExoskyTangoApp extends StatelessWidget {
+  const ExoskyTangoApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Exoplanet Sky Viewer',
+      title: 'ExoSky Tango',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: ExoplanetListScreen(),
+      home: HomeScreen(),
     );
   }
 }

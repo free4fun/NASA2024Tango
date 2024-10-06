@@ -1,0 +1,96 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:xml/xml.dart' as xml;
+import '../models/exoplanet.dart';
+import 'package:logging/logging.dart';
+
+class ExoplanetApiService {
+  final String _baseUrl = 'https://exoplanetarchive.ipac.caltech.edu/TAP/sync';
+  final Logger _logger = Logger('ExoplanetApiService');
+  final Dio _dio = Dio();
+
+  ExoplanetApiService() {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      print('${record.level.name}: ${record.time}: ${record.message}');
+    });
+  }
+
+  Future<List<Exoplanet>> fetchExoplanets(int startIndex) async {
+    final query =
+        'select pl_name,pl_bmasse,pl_rade from ps where pl_bmasse is not null and pl_rade is not null order by pl_name offset $startIndex limit 20';
+    final url = '$_baseUrl?query=${Uri.encodeComponent(query)}&format=json';
+
+    try {
+      final response = await _dio
+          .get(
+            url,
+            options: Options(
+              headers: {
+                'Accept': 'application/json',
+              },
+              responseType: ResponseType.plain,
+            ),
+          )
+          .timeout(Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        final responseData = response.data;
+        if (responseData is String &&
+            (responseData.trim().startsWith('{') ||
+                responseData.trim().startsWith('['))) {
+          // Es JSON
+          try {
+            final List<dynamic> jsonData = json.decode(responseData);
+            return jsonData.map((json) => Exoplanet.fromJson(json)).toList();
+          } catch (e) {
+            _logger.severe('Error decoding JSON: $e');
+            _logger.severe('Server response: $responseData');
+            throw FormatException(
+                'The server response is not valid JSON: ${responseData.substring(0, 100)}...');
+          }
+        } else if (responseData is String &&
+            responseData.trim().startsWith('<?xml')) {
+          // Es XML
+          try {
+            final xmlDoc = xml.XmlDocument.parse(responseData);
+            final errorInfoList = xmlDoc
+                .findAllElements('INFO')
+                .where(
+                    (element) => element.getAttribute('name') == 'QUERY_STATUS')
+                .toList();
+
+            if (errorInfoList.isNotEmpty) {
+              final errorInfo = errorInfoList.first;
+              if (errorInfo.getAttribute('value') == 'ERROR') {
+                final errorMessage = errorInfo.text;
+                throw Exception('API Error: $errorMessage');
+              }
+            }
+            throw Exception('Unexpected XML response');
+          } catch (e) {
+            _logger.severe('Error parsing XML: $e');
+            throw Exception('Error parsing server response: $e');
+          }
+        } else {
+          throw FormatException('The server response is neither JSON nor XML');
+        }
+      } else {
+        _logger.warning('Server response error: ${response.statusCode}');
+        _logger.warning('Response body: ${response.data}');
+        throw Exception('Error loading exoplanets: ${response.statusCode}');
+      }
+    } on DioError catch (e) {
+      _logger.severe('Dio error: ${e.message}');
+      _logger.severe('Dio error type: ${e.type}');
+      if (e.response != null) {
+        _logger.severe('Dio error response: ${e.response?.data}');
+      }
+      throw Exception('Error fetching data: ${e.message}');
+    } catch (e) {
+      _logger.severe('Network error: $e');
+      throw Exception('Error fetching data: $e');
+    }
+  }
+}

@@ -1,51 +1,137 @@
 import 'package:flutter/material.dart';
-import '../models/exoplanet.dart';
-import '../models/star.dart';
-import '../widgets/interactive_sky_view.dart';
-import '../services/star_calculation_service.dart';
+import 'package:provider/provider.dart';
+import 'package:exosky_tango/models/export_format.dart';
+import 'package:exosky_tango/models/exoplanet.dart';
+import 'package:exosky_tango/providers/exoplanet_provider.dart';
+import 'package:exosky_tango/providers/star_provider.dart';
+import 'package:exosky_tango/services/export_service.dart';
+import 'package:exosky_tango/widgets/export_dialog.dart';
+import 'package:exosky_tango/widgets/star_chart.dart';
+import 'package:exosky_tango/widgets/exoplanet_details_panel.dart';
 
 class SkyViewScreen extends StatefulWidget {
-  final Exoplanet exoplanet;
-
-  SkyViewScreen({required this.exoplanet});
+  const SkyViewScreen({Key? key}) : super(key: key);
 
   @override
   _SkyViewScreenState createState() => _SkyViewScreenState();
 }
 
 class _SkyViewScreenState extends State<SkyViewScreen> {
-  late List<Star> stars;
-  bool _isLoading = true;
-  final StarCalculationService _starService = StarCalculationService();
+  final ExportService _exportService = ExportService();
+  bool _showGrid = true;
+  Exoplanet? _selectedExoplanet;
+  double _rightAscension = 0.0;
+  double _declination = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _loadStars();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
   }
 
-  Future<void> _loadStars() async {
-    // Usamos el StarCalculationService para obtener las estrellas visibles
-    // desde el exoplaneta seleccionado.
-    stars = _starService.calculateVisibleStars(widget.exoplanet, 1000);
+  void _initializeData() {
+    final exoplanetProvider =
+        Provider.of<ExoplanetProvider>(context, listen: false);
+    if (exoplanetProvider.exoplanets.isNotEmpty) {
+      setState(() {
+        _selectedExoplanet = exoplanetProvider.exoplanets.first;
+        _updateChartPosition();
+      });
+    }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
+  void _updateChartPosition() {
+    if (_selectedExoplanet != null) {
+      setState(() {
+        _rightAscension = _selectedExoplanet!.rightAscension ?? 0.0;
+        _declination = _selectedExoplanet!.declination ?? 0.0;
+      });
+    }
+  }
+
+  void _showExportDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ExportDialog(
+        onExport: (format) {
+          Navigator.of(context).pop();
+          _exportData(format);
+        },
+      ),
+    );
+  }
+
+  void _exportData(ExportFormat format) async {
+    final exoplanetProvider =
+        Provider.of<ExoplanetProvider>(context, listen: false);
+    List<Exoplanet> exoplanetsToExport = exoplanetProvider.exoplanets;
+
+    try {
+      await _exportService.exportData(exoplanetsToExport, format);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Export successful')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Export failed: ${e.toString()}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Vista desde ${widget.exoplanet.name}'),
+        title: const Text('ExoSky Explorer'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.grid_on),
+            onPressed: () => setState(() => _showGrid = !_showGrid),
+            tooltip: 'Toggle grid',
+          ),
+          IconButton(
+            icon: const Icon(Icons.file_download),
+            onPressed: _showExportDialog,
+            tooltip: 'Export data',
+          ),
+        ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : InteractiveSkyView(
-              exoplanet: widget.exoplanet,
-              stars: stars,
-            ),
+      body: Consumer2<ExoplanetProvider, StarProvider>(
+        builder: (context, exoplanetProvider, starProvider, child) {
+          if (_selectedExoplanet == null) {
+            return Center(child: Text('No exoplanet selected'));
+          }
+          return Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: StarChart(
+                  exoplanets: exoplanetProvider.exoplanets,
+                  showGrid: true,
+                  rightAscension: _rightAscension,
+                  declination: _declination,
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: ExoplanetDetailsPanel(
+                  exoplanet: _selectedExoplanet,
+                  onExoplanetChanged: (Exoplanet? newExoplanet) {
+                    if (newExoplanet != null) {
+                      setState(() {
+                        _selectedExoplanet = newExoplanet;
+                        _updateChartPosition();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
