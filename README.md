@@ -1,6 +1,12 @@
 # Exosky! Team Tango
 Este proyecto es una aplicación Flutter que permite visualizar el cielo nocturno desde exoplanetas.
 
+Overview:
+https://theskycluster.my.canva.site/
+
+## Demo
+https://youtu.be/-sFJt4Hzbp8
+
 ## Estructura del Proyecto
 
 ### Componentes Principales
