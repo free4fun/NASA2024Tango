@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+
 enum ExoplanetType { terrestrial, gasGiant, iceGiant, superEarth, unknown }
 
 class Exoplanet {
@@ -21,6 +24,12 @@ class Exoplanet {
   final double? distanceFromEarth;
   final String? stellarSpectralType;
   final ExoplanetType type;
+  final Offset position; // Position on the screen
+  final double size; // Size of the planet on the screen
+  
+  // New coordinates
+  double x; // X coordinate on the screen
+  double y; // Y coordinate on the screen
 
   Exoplanet({
     this.name,
@@ -43,6 +52,10 @@ class Exoplanet {
     this.distanceFromEarth,
     this.stellarSpectralType,
     required this.type,
+    this.x = 0, // Default to 0
+    this.y = 0, // Default to 0
+    required this.position,
+    required this.size,
   });
 
   /// Create an Exoplanet object from a list of values
@@ -67,8 +80,7 @@ class Exoplanet {
       declination: double.tryParse(data[16]),
       distanceFromEarth: double.tryParse(data[17]),
       stellarSpectralType: data[18],
-      type:
-          _getExoplanetType(double.tryParse(data[9]), double.tryParse(data[8])),
+      type: _getExoplanetType(double.tryParse(data[9]), double.tryParse(data[8])),
     );
   }
 
@@ -115,3 +127,12 @@ class Exoplanet {
     return ExoplanetType.unknown;
   }
 }
+
+
+Offset calculatePosition(double rightAscension, double declination, Size canvasSize) {
+  // Convert RA/Dec to screen coordinates (this is a simple example)
+  double x = (rightAscension / 360) * canvasSize.width; // Map RA to x-axis
+  double y = (declination / 180) * canvasSize.height; // Map Dec to y-axis
+  return Offset(x, y);
+}
+

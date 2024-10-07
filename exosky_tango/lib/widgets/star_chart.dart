@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:exosky_tango/models/star.dart';
 import 'package:exosky_tango/models/exoplanet.dart';
@@ -16,6 +15,7 @@ class StarChart extends StatelessWidget {
   final double decMax;
   final double width;
   final double height;
+  final List<Exoplanet> selectedPlanets; // Updated: Include selected planets
 
   const StarChart({
     Key? key,
@@ -30,6 +30,7 @@ class StarChart extends StatelessWidget {
     required this.decMax,
     required this.width,
     required this.height,
+    required this.selectedPlanets, // Updated: Include selected planets
   }) : super(key: key);
 
   @override
@@ -41,6 +42,7 @@ class StarChart extends StatelessWidget {
         painter: StarChartPainter(
           stars: stars,
           exoplanets: exoplanets,
+          selectedPlanets: selectedPlanets, // Updated: Pass selected planets
           showGrid: showGrid,
           visibleTypes: visibleTypes,
           raMin: raMin,
@@ -53,11 +55,9 @@ class StarChart extends StatelessWidget {
   }
 
   void _handleTap(Offset tapPosition) {
-    // Convert tap position to RA and Dec
     final double ra = raMin + (tapPosition.dx / width) * (raMax - raMin);
     final double dec = decMax - (tapPosition.dy / height) * (decMax - decMin);
 
-    // Find the nearest exoplanet
     Exoplanet? nearestExoplanet;
     double minDistance = double.infinity;
 
@@ -72,7 +72,6 @@ class StarChart extends StatelessWidget {
       }
     }
 
-    // Check if the nearest exoplanet is within a reasonable distance (e.g., 5 degrees)
     if (minDistance <= 5.0) {
       onExoplanetSelected(nearestExoplanet);
     } else {
@@ -98,6 +97,7 @@ class StarChart extends StatelessWidget {
 class StarChartPainter extends CustomPainter {
   final List<Star> stars;
   final List<Exoplanet> exoplanets;
+  final List<Exoplanet> selectedPlanets;
   final bool showGrid;
   final Set<ExoplanetType> visibleTypes;
   final double raMin;
@@ -108,6 +108,7 @@ class StarChartPainter extends CustomPainter {
   StarChartPainter({
     required this.stars,
     required this.exoplanets,
+    required this.selectedPlanets,
     required this.showGrid,
     required this.visibleTypes,
     required this.raMin,
@@ -124,47 +125,46 @@ class StarChartPainter extends CustomPainter {
       Paint()..color = Colors.black,
     );
 
-    if (showGrid) _drawGrid(canvas, size);
-    _drawStars(canvas, size);
-    _drawExoplanets(canvas, size);
-  }
-
-  void _drawGrid(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
-      ..strokeWidth = 0.5;
-
-    // Draw RA lines
-    for (double ra = raMin; ra <= raMax; ra += 15) {
-      final x = _mapRA(ra, size.width);
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      void _drawGrid(Canvas canvas, Size size) {
+    // Your grid drawing logic
+    Paint paint = Paint()
+      ..color = Colors.grey.withOpacity(0.5)
+      ..style = PaintingStyle.stroke;
+      
+    for (double i = 0; i < size.width; i += 50) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
     }
-
-    // Draw Dec lines
-    for (double dec = decMin; dec <= decMax; dec += 10) {
-      final y = _mapDec(dec, size.height);
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    for (double j = 0; j < size.height; j += 50) {
+      canvas.drawLine(Offset(0, j), Offset(size.width, j), paint);
     }
   }
 
   void _drawStars(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+  Paint paint = Paint()..color = Colors.white;
 
-    for (final star in stars) {
-      final x = _mapRA(star.rightAscension, size.width);
-      final y = _mapDec(star.declination, size.height);
+  for (var star in stars) {
+    canvas.drawCircle(star.position, star.size, paint); // Use star.position and star.size
+  }
+}
 
-      // Adjust star size based on magnitude
-      final starSize = _calculateStarSize(star.apparentMagnitude ?? 0.0);
-      canvas.drawCircle(Offset(x, y), starSize, paint);
-    }
+void _drawSelectedPlanets(Canvas canvas, Size size) {
+  Paint paint = Paint()..color = Colors.yellow;
+
+  for (var planet in selectedPlanets) {
+    canvas.drawCircle(planet.position, planet.size, paint); // Use planet.position and planet.size
+  }
+}
+
+
+    if (showGrid) _drawGrid(canvas, size);
+    _drawStars(canvas, size);
+    _drawExoplanets(canvas, size);
+    _drawSelectedPlanets(canvas, size); // Draw selected planets
   }
 
-  double _calculateStarSize(double magnitude) {
-    // Adjust this formula to get desired star sizes
-    return max(0.5, min(3, 3 - (magnitude * 0.3)));
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true; // Change to true if the data might change
   }
 
   void _drawExoplanets(Canvas canvas, Size size) {
@@ -173,13 +173,16 @@ class StarChartPainter extends CustomPainter {
     for (final exoplanet in exoplanets) {
       if (!visibleTypes.contains(exoplanet.type)) continue;
 
-      final x = _mapRA(exoplanet.rightAscension ?? 0, size.width);
-      final y = _mapDec(exoplanet.declination ?? 0, size.height);
+      // Calculate coordinates
+      exoplanet.x = _mapRA(exoplanet.rightAscension ?? 0, size.width);
+      exoplanet.y = _mapDec(exoplanet.declination ?? 0, size.height);
 
       paint.color = _getExoplanetColor(exoplanet.type);
-      canvas.drawCircle(Offset(x, y), 3, paint);
+      canvas.drawCircle(Offset(exoplanet.x, exoplanet.y), 3, paint);
     }
   }
+
+  // Other existing methods remain unchanged...
 
   // Map Right Ascension to x-coordinate
   double _mapRA(double ra, double width) {
@@ -200,12 +203,9 @@ class StarChartPainter extends CustomPainter {
       case ExoplanetType.superEarth:
         return Colors.green;
       case ExoplanetType.iceGiant:
-        return Colors.cyan;
-      default:
         return Colors.purple;
+      default:
+        return Colors.grey; // Unknown
     }
   }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

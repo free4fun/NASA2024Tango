@@ -13,9 +13,9 @@ class Star {
   final double? radius;
   final double? luminosity;
 
+
   Star({
     required this.id,
-    //required this.name,
     required this.rightAscension,
     required this.declination,
     this.parallax,
@@ -26,16 +26,17 @@ class Star {
     this.luminosity,
   });
   factory Star.fromDetailedList(List<String> values) {
-    return Star(
-      id: values[0],
-      rightAscension: double.parse(values[1]),
-      declination: double.parse(values[2]),
-      parallax: double.tryParse(values[3]),
-      apparentMagnitude: double.tryParse(values[4]),
-      temperature: double.tryParse(values[5]),
-      colorIndex: double.tryParse(values[6]),
-    );
-  }
+  return Star(
+    id: values[0],
+    rightAscension: double.parse(values[1]),
+    declination: double.parse(values[2]),
+    parallax: double.tryParse(values[3]),
+    apparentMagnitude: double.tryParse(values[4]),
+    temperature: double.tryParse(values[5]),
+    colorIndex: double.tryParse(values[6]),
+    ),
+}
+
 
   factory Star.fromList(List<dynamic> data) {
     return Star(
@@ -103,3 +104,14 @@ class Star {
     return Colors.red;
   }
 }
+
+Offset calculatePosition(double rightAscension, double declination, Size canvasSize) {
+  // Calculate position based on right ascension, declination, and canvas size.
+  // Example calculation (you may need to adjust the logic based on your requirements):
+  double x = (rightAscension / 360) * canvasSize.width; // Map RA to x-coordinate
+  double y = (declination / 90) * canvasSize.height;   // Map Dec to y-coordinate
+  return Offset(x, y);
+}
+
+
+

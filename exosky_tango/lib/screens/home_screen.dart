@@ -119,19 +119,40 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, constraints) {
                 return Stack(
                   children: [
+                    if (_showGrid) ...[
+                      // Show Grid View if _showGrid is true
+                      GridView.builder(
+                        itemCount: exoplanetProvider.exoplanets.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // Adjust the number of columns as needed
+                          childAspectRatio: 1, // Adjust aspect ratio for your design
+                        ),
+                        itemBuilder: (context, index) {
+                          final exoplanet = exoplanetProvider.exoplanets[index];
+                          return GestureDetector(
+                            onTap: () {
+                              exoplanetProvider.selectExoplanet(exoplanet);
+                            },
+                            
+                          );
+                        },
+                      ),
+                    ],
                     StarChart(
-                      stars: starProvider.stars,
-                      exoplanets: exoplanetProvider.exoplanets,
-                      showGrid: _showGrid,
-                      onExoplanetSelected: _onExoplanetSelected,
-                      visibleTypes: _visibleTypes,
-                      raMin: raMin,
-                      raMax: raMax,
-                      decMin: decMin,
-                      decMax: decMax,
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                    ),
+                        stars: starProvider.stars,
+                        exoplanets: exoplanetProvider.exoplanets,
+                        showGrid: _showGrid,
+                        onExoplanetSelected: _onExoplanetSelected,
+                        visibleTypes: _visibleTypes,
+                        raMin: raMin,
+                        raMax: raMax,
+                        decMin: decMin,
+                        decMax: decMax,
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        selectedPlanets: exoplanetProvider.selectedPlanets, // Pass selected planets here
+                      ),
+
                     Positioned(
                       left: 16,
                       bottom: 16,

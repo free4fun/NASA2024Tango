@@ -5,15 +5,21 @@ import 'dart:math' show sqrt, pow, pi;
 
 class ExoplanetProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  
   List<Exoplanet> _exoplanets = [];
   Exoplanet? _selectedExoplanet;
   bool _isLoading = false;
   String? _error;
 
+  // New property for tracking selected planets for constellation drawing
+  List<Exoplanet> _selectedPlanets = [];
+
+  /// Getters for current state
   List<Exoplanet> get exoplanets => _exoplanets;
   Exoplanet? get selectedExoplanet => _selectedExoplanet;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  List<Exoplanet> get selectedPlanets => _selectedPlanets;
 
   /// Fetch exoplanets from the API
   Future<void> fetchExoplanets() async {
@@ -32,15 +38,30 @@ class ExoplanetProvider with ChangeNotifier {
     }
   }
 
-  /// Select an exoplanet
+  /// Select a single exoplanet (used for detail view)
   void selectExoplanet(Exoplanet exoplanet) {
     _selectedExoplanet = exoplanet;
     notifyListeners();
   }
 
-  /// Deselect the current exoplanet
+  /// Deselect the currently selected exoplanet
   void deselectExoplanet() {
     _selectedExoplanet = null;
+    notifyListeners();
+  }
+
+  /// Select exoplanets for constellation drawing
+  void selectPlanetForConstellation(Exoplanet planet) {
+    if (_selectedPlanets.length == 2) {
+      _selectedPlanets.clear(); // Reset if two planets are already selected
+    }
+    _selectedPlanets.add(planet);
+    notifyListeners();
+  }
+
+  /// Clear all selected planets for constellation drawing
+  void clearSelection() {
+    _selectedPlanets.clear();
     notifyListeners();
   }
 
