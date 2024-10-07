@@ -1,95 +1,102 @@
 # Exosky! Team Tango
-Este proyecto es una aplicación Flutter que permite visualizar el cielo nocturno desde exoplanetas.
+a starry night from an exoplanet of their choice, learn about the planet and create unique constellations.
 
-Overview:
-https://theskycluster.my.canva.site/
+Its importance relies on the complexity of most databases that makes the information inaccessible for most people. The Sky Cluster simplifies NASA's open-coded databases and transforms them into a friendly interface useful for students or persons with a passion for astronomy. In addition, the possibility of drawing new constellations incites imagination and creativity.
+
+![Tango-logo](https://github.com/user-attachments/assets/ba1766cf-3744-4568-8962-6b80696aa3d0)
+
+
+## Overview
+https://theskycluster.my.canva.site/demo ,
+https://theskycluster.my.canva.site/detail
 
 ## Demo
-https://youtu.be/-sFJt4Hzbp8
+https://youtu.be/-sfjt4HzBP8
 
-## Estructura del Proyecto
+## Project structure
 
-### Componentes Principales
+### Main components
 
-#### models/
-- **exoplanet.dart**: Modelo para representar un exoplaneta.
-- **star.dart**: Modelo para representar una estrella.
-- **constellation.dart**: Modelo para representar una constelación creada por el usuario.
+#### Models/
+- ** Exoplanet.dart **: Model to represent an exoplanet.
+- ** Star.dart **: Model to represent a star.
+- ** Constellation.dart **: Model to represent a user-created constellation.
 
-#### services/
-- **data_service.dart**: Servicio para cargar y manejar los datos de exoplanetas y estrellas.
-- **star_calculation_service.dart**: Servicio para realizar cálculos de posición y brillo de las estrellas.
-- **image_generation_service.dart**: Servicio para generar imágenes de alta calidad del cielo.
+#### Services/
+- ** Data_service.dart **: Service to load and handle exoplanets and stars data.
+- ** Image_generation_service.dart **: Service to generate high-quality images of the sky.
 
-#### screens/
-- **home_screen.dart**: Pantalla principal de la aplicación.
-- **exoplanet_selection_screen.dart**: Pantalla para seleccionar un exoplaneta.
-- **sky_view_screen.dart**: Pantalla para ver el cielo desde el exoplaneta seleccionado.
-- **constellation_creation_screen.dart**: Pantalla para crear y nombrar constelaciones.
+#### Screens/
+- ** Home_Screen.Dart **: Main screen of the application.
+- ** Exoplanet_selection_screen.dart **: Screen to select an exoplanet.
+-*Sky_View_screen.dart **: Screen to see the sky from the selected exoplanet.
+- ** Constellation_CREATION_SCREEN.Dart **: screen to create and name constellations.
 
-#### widgets/
-- **star_chart.dart**: Widget para mostrar un mapa estelar estático.
-- **interactive_sky.dart**: Widget para una visualización interactiva del cielo.
-- **constellation_drawer.dart**: Widget para dibujar constelaciones.
+#### Widgets/
+- ** Star_chart.dart **: Widget to show a static stellar map.
+- ** Interactive_sky.dart **: Widget for interactive visualization of the night sky.
+- ** Constellation_drawer.dart **: Widget to draw constellations.
 
-#### utils/
-- **constants.dart**: Constantes utilizadas en toda la aplicación.
-- **helpers.dart**: Funciones de utilidad.
+#### Use/
+- ** Constants.Dart **: constants used throughout the application.
+- ** Helpers.dart **: Utility functions.
 
-## Flujo de la Aplicación
+## Application flow
 
-1. El usuario inicia la aplicación en la pantalla de inicio.
-2. El usuario selecciona un exoplaneta.
-3. La aplicación carga los datos necesarios y realiza los cálculos.
-4. El usuario ve el cielo desde el exoplaneta seleccionado.
-5. El usuario puede interactuar con la vista, crear constelaciones, etc.
-6. Opcionalmente, el usuario puede generar una imagen de alta calidad para imprimir o ver en realidad virtual.
+1. The user starts the application on the home screen with a view of the night sky, and can select planets to view its details.
+2. The user selects an exoplanet.
+3. The application loads the necessary data and performs the calculations.
+4. The user sees the sky from the selected exoplanet.
+5. The user can interact with the view, create constellations, etc.
+6. Optionally, the user can generate a high quality image to print or see virtual.
 
-## Instalación
+## Instructions
 
-1. Asegúrate de tener Flutter instalado en tu sistema. Si no lo tienes, sigue las instrucciones en [flutter.dev](https://flutter.dev/docs/get-started/install).
+1. Be sure to have Flutter installed in your system. If you don't have it, follow the instructions in [flutter.dev] (https://flutter.dev/docs/get-started/install).
 
-2. Clona este repositorio:
-`git clone https://github.com/free4fun/NASA2024Tango.git`
+2. Clona this repository:
+`git clone [https: // github.com/free4fun/nasa2024tango.git`](https://github.com/free4fun/NASA2024Tango/)
 
-3. Navega al directorio del proyecto:
-`cd NASA2024Tango/exosky_tango`
+3. Navigate to the project directory:
+`CD NASA2024TANGO/EXOSKY_TANGO`
 
-4. Obtén las dependencias del proyecto:
-`flutter pub get`
+4. Get the project units:
+`Flutter Pub Get`
 
-5. Conecta un dispositivo o inicia un emulador.
-FIXME
+5. [Optional]Connect a device / run an emulator on Android Studio for Mobile view
 
-6. Ejecuta la aplicación:
-`flutter run`
+6. Execute the application:
+`Flutter Run` (if no device is connected it can still run on Chrome by selecting 2 on the command line
 
 
-## Uso
+## Use
 
-1. Al abrir la aplicación, serás recibido por la pantalla de inicio.
+1. When you open the application, you will be received by the home screen.
 
-2. Selecciona "Explorar Exoplanetas" para ver la lista de exoplanetas disponibles.
+2. Select "Explore exoplanets" to see the list of exoplanets available.
 
-3. Elige un exoplaneta de la lista para visualizar su cielo nocturno.
+3. Choose an exoplanet from the list to visualize your night sky.
 
-4. En la pantalla de visualización del cielo:
-- Usa gestos de "pellizco" para hacer zoom.
-- Desliza para moverte por el cielo.
-- Toca una estrella para ver su información.
+4. On the sky visualization screen:
+- Use "pinch" gestures to zoom.
+- Slide to move through the sky.
+- Touch a star to see your information.
 
-5. Para crear una constelación:
-- Selecciona "Crear Constelación" en el menú.
-- Une las estrellas con tu dedo para dibujar la constelación.
-- Dale un nombre a tu constelación y guárdala.
+5. To create a constellation:
+- Select "Create constellation" in the menu.
+- Unite the stars with your finger to draw the constellation.
+- Give your constellation a name and guide it.
 
-6. Para generar una imagen de alta calidad:
-- Selecciona "Generar Imagen" en el menú.
-- Elige las opciones de calidad y formato.
-- Guarda la imagen en tu dispositivo o compártela.
+6. To generate a high quality image:
+- Select "generate image" on the menu.
+- Choose quality and format options.
+- Keep the image on your device or share it.
 
-## Licencia
+- https://youtu.be/OmRkvPIDrF4
+- 
+https://youtu.be/AmVXjQzOBVw
+## License
 
-Este proyecto está licenciado bajo la GNU General Public License v3.0 (GPL-3.0). Esto significa que puedes copiar, distribuir y modificar el software, siempre que rastrees los cambios/fechas en los archivos fuente. Cualquier modificación o software que incluya código bajo GPL-3.0 debe también estar disponible bajo la GPL-3.0 junto con instrucciones de compilación e instalación.
+This project is licensed under the GNU General Public License V3.0 (GPL-3.0). This means that you can copy, distribute and modify the software, provided that the changes/dates in the source files. Any modification or software that includes GPL-3.0 code must also be available under GPL-3.0 together with compilation and installation instructions.
 
-Para más detalles, consulta el archivo [LICENSE](LICENSE) en este repositorio o visita [https://www.gnu.org/licenses/gpl-3.0.en.html](https://www.gnu.org/licenses/gpl-3.0.en.html).
+For more details, consult the [License] (License) file in this repository or visit [https://www.gnu.org/licenses/gpl-3.0.en.html Licenses/GPL-3.0.en.html).
